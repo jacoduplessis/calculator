@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Calculator</title>
+  <style>
+    #fundName {
+      font-size: 3rem;
+      font-weight: 600;
+    }
+
+    #fundDescription {
+      font-size: 2rem;
+    }
+
+    #info {
+      text-align: center;
+      padding: 0 2rem;
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+<select name="fundCode" id="fundCode">
+  <option value="">Select Fund</option>
+</select>
+
+<select name="month" id="month">
+  <option value="">Select Month</option>
+  <option value="1">Jan</option>
+  <option value="2">Feb</option>
+  <option value="3">Mar</option>
+  <option value="4">Apr</option>
+  <option value="5">May</option>
+  <option value="6">Jun</option>
+  <option value="7">Jul</option>
+  <option value="8">Aug</option>
+  <option value="9">Sep</option>
+  <option value="10">Oct</option>
+  <option value="11">Nov</option>
+  <option value="12">Dec</option>
+</select>
+
+<select name="year" id="year">
+  <option value="">Select Year</option>
+</select>
+
+<input name="lumpSum" type="number" min="1000" id="lumpSum" placeholder="Lump Sum" value="10000">
+<input name="debitOrder" type="number" min="500" id="debitOrder" placeholder="Debit Order">
+<button onclick="update()">Update</button>
+<div id="info">
+  <div id="loading" style="text-align: center; margin: 2rem"></div>
+  <div id="fundName"></div>
+  <div id="fundDescription"></div>
+  <div id="fundRisk"></div>
+</div>
+<svg width="960" height="500"></svg>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+  function q(s) {
+    return document.querySelector(s)
+  }
+
+  function c(n) {
+    return document.createElement(n)
+  }
+
+  function updateOptions(event) {
+    console.log(event)
+  }
+
+  var funds = [
+    {
+      code: 'UTTOP',
+      name: 'Coronation Top 20 Fund',
+      year: 2000,
+      month: 10,
+      risk: 8,
+      description: "Aims to outperform the FTSE/JSE Top 40 Index, is actively managed and typically holds no more than 20 large cap stocks at any point in time."
+    },
+    {
+      code: 'TMPBF',
+      name: 'Coronation Balanced Plus Fund',
+      year: 1996,
+      month: 4,
+      risk: 6,
+      description: "A fully managed investment solution diversified across the various asset classes and sectors. Its asset allocation is compliant with Regulation 28 of the Pension Funds Act.",
+    },
+    {
+      code: 'UTBADE',
+      name: 'Coronation Balanced Defensive Fund',
+      year: 2007,
+      month: 1,
+      risk: 3,
+      description: "The fund aims to provide a reasonable level of current income and seeks to preserve capital in real terms, with lower volatility over the medium to long-term.",
+    },
+    {
+      code: 'UTCAPP',
+      name: 'Coronation Capital Plus Fund',
+      year: 2001,
+      month: 7,
+      risk: 4,
+      description: "Focused on the preservation of capital over all rolling 12-month periods. Over the medium term, the objective is to produce real growth of at least 4% per annum.",
+    },
+    {
+      code: 'UTSTRT',
+      name: 'Coronation Strategic Income Fund',
+      year: 2001,
+      month: 7,
+      risk: 2,
+      description: " A widely diversified, actively managed fund that aims to provide a higher level of income than a pure income fund.",
+    }];
+
+
+  (function () {
+    var yearSelect = q('#year')
+    var monthSelect = q('#month')
+
+    function updateYears(start) {
+      yearSelect.innerHTML = ''
+      for (var i = start; i <= 2017; i++) {
+        var option = c('option')
+        option.value = i
+        option.textContent = i
+        yearSelect.appendChild(option)
+      }
+    }
+
+    var fundSelect = q("#fundCode")
+    funds.forEach(function (fund) {
+      var option = c('option')
+      option.value = fund.code
+      option.textContent = fund.name
+      fundSelect.appendChild(option)
+    })
+
+    fundSelect.addEventListener('input', function (event) {
+      var fundCode = event.target.value;
+      if (!fundCode) return;
+      var fund = null;
+      funds.forEach(function (f) {
+        if (f.code === fundCode) fund = f;
+      })
+      if (fund) {
+        q('#fundName').textContent = fund.name
+        q('#fundDescription').textContent = fund.description
+        q('#fundRisk').textContent = 'Risk Rating: ' + fund.risk + ' out of 10.'
+        updateYears(fund.year)
+        yearSelect.value = fund.year
+        monthSelect.value = fund.month
+      }
+    })
+  })();
+
+  var svg = d3.select("svg"),
+    margin = {top: 20, right: 20, bottom: 30, left: 100},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var parseTime = d3.timeParse("%Y-%m-%d");
+
+  var x = d3.scaleTime()
+    .rangeRound([0, width]);
+
+  var y = d3.scaleLinear()
+    .rangeRound([height, 0]);
+
+  var line = d3.area()
+    .x(function (d) {
+      return x(d.date);
+    })
+    .y0(height)
+    .y1(function (d) {
+      return y(d.value);
+    });
+
+  function init(data) {
+    x.domain(d3.extent(data, function (d) {
+      return d.date;
+    }));
+    y.domain([0, d3.max(data, function (d) {
+      return d.value;
+    })]);
+
+    g.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .attr("class", "graph-component")
+      .call(d3.axisBottom(x))
+      .select(".domain")
+      .remove();
+
+    g.append("g")
+      .call(d3.axisLeft(y))
+      .attr("class", "graph-component")
+      .append("text")
+      .attr("fill", "#000")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("Value (R)");
+
+    g.append("path")
+      .datum(data)
+      .attr("class", "graph-component")
+      .attr("fill", "steelblue")
+      .attr("stroke", "steelblue")
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+      .attr("stroke-width", 1.5)
+      .attr("d", line);
+  }
+
+  function v(s) {
+    return document.querySelector(s).value
+  }
+
+  function getQueryString() {
+
+    var fundCode = v('#fundCode')
+    var debitOrder = v("#debitOrder")
+    var lumpSum = v("#lumpSum")
+    var year = v("#year")
+    var month = v("#month")
+
+    return '?' +
+      'fundCode=' + fundCode +
+      '&debitOrder=' + debitOrder +
+      '&lumpSum=' + lumpSum +
+      '&year=' + year +
+      '&month=' + month
+  }
+
+  function getResponse(callback) {
+    var request = new XMLHttpRequest()
+    var url = 'https://better-trader.glitch.me/' + getQueryString()
+
+    request.open('GET', url)
+    request.onload = function (event) {
+      callback(JSON.parse(event.target.responseText))
+    }
+    request.send()
+  }
+
+  function update() {
+    d3.selectAll('.graph-component').remove()
+    var loading = q('#loading')
+    loading.textContent = "Loading..."
+    getResponse(function (response) {
+      if (response['NoData']) {
+        return loading.textContent = "Error. Try different values."
+      }
+      var data = response['GraphData']
+      data.splice(0, 1)
+      var parsed = data.map(function (d, i) {
+        return {
+          date: parseTime(d.date),
+          value: +d.value
+        }
+      })
+      loading.textContent = ''
+      init(parsed)
+    })
+  }
+
+</script>
+</body>
+</html>
