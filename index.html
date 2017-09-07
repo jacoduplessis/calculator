@@ -66,8 +66,8 @@
     return document.createElement(n)
   }
 
-  function updateOptions(event) {
-    console.log(event)
+  function v(s) {
+    return q(s).value
   }
 
   var funds = [
@@ -109,7 +109,7 @@
       year: 2001,
       month: 7,
       risk: 2,
-      description: " A widely diversified, actively managed fund that aims to provide a higher level of income than a pure income fund.",
+      description: "A widely diversified, actively managed fund that aims to provide a higher level of income than a pure income fund.",
     }];
 
 
@@ -211,10 +211,6 @@
       .attr("stroke-linecap", "round")
       .attr("stroke-width", 1.5)
       .attr("d", line);
-  }
-
-  function v(s) {
-    return document.querySelector(s).value
   }
 
   function getQueryString() {
