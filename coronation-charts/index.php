@@ -7,6 +7,7 @@ Version: 1.0
 */
 
 function coronation_charts( $atts ){
+
     $path = trailingslashit(plugin_dir_path( __FILE__ ) . 'assets');
     $url = trailingslashit(plugin_dir_url( __FILE__ ) . 'assets');
 	$scripts = ['d3.v3.min.js','nv.d3.min.js', 'chart.js'];
@@ -20,7 +21,12 @@ function coronation_charts( $atts ){
 	    wp_enqueue_style($style, $src, [], false, false);
 	}
 
-	$html = file_get_contents($path . 'charts.html');
+    if ($atts['code'] == 'interactive') {
+        $html = file_get_contents($path . 'interactive.html');
+    } else {
+        $html = '<div><svg class="cn-chart" id="' . $atts['code'] . '"></svg></div>';
+    }
+
 	return $html;
 }
 add_shortcode( 'coronation_charts', 'coronation_charts' );
