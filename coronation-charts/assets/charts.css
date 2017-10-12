@@ -1,0 +1,10 @@
+.cn-chart {
+  min-height: 600px !important;
+  width: 100%;
+  display: block;
+}
+
+path.nv-line {
+  stroke-width: 3px;
+  fill: none;
+}

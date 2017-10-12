@@ -1,0 +1,21 @@
+version: '3.1'
+
+services:
+
+  wordpress:
+    image: wordpress:latest
+    container_name: 'coronation_wp_1'
+    volumes:
+      - './coronation-charts:/var/www/html/wp-content/plugins/coronation-charts'
+    ports:
+      - '8010:80'
+    environment:
+      WORDPRESS_DB_PASSWORD: example
+
+  mysql:
+    image: mariadb:latest
+    container_name: 'coronation_mysql_1'
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    ports:
+      - '3306:3306'

@@ -1,0 +1,35 @@
+<div id="charts">
+  <div>
+    <h1>TMPBF</h1>
+    <svg class="cn-chart" id="tmpbf"></svg>
+  </div>
+  <div>
+    <h1>UTBADE</h1>
+    <svg class="cn-chart" id="utbade"></svg>
+  </div>
+  <div>
+    <h1>UTCAPP</h1>
+    <svg class="cn-chart" id="utcapp"></svg>
+  </div>
+  <div>
+    <h1>UTMARK</h1>
+    <svg class="cn-chart" id="utmark"></svg>
+  </div>
+  <div>
+    <h1>UTSTRT</h1>
+    <svg class="cn-chart" id="utstrt"></svg>
+  </div>
+  <div>
+    <h1>UTTOP</h1>
+    <svg class="cn-chart" id="uttop"></svg>
+  </div>
+</div>
+
+<div>
+  <h1>Interactive</h1>
+  <label>Year</label>
+  <input type="range" name="time" min="1" max="4" step="1" onchange="makeOtherChart()" value="2">
+  <label>Risk</label>
+  <input type="range" name="risk" min="1" max="3" step="1" onchange="makeOtherChart()" value="2">
+  <svg class="cn-chart" id="interactive"></svg>
+</div>
