@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Calculator</title>
+
+
+</head>
+<style>
+    svg {
+        min-height: 600px !important;
+    }
+
+    path.nv-line {
+        stroke-width: 3px;
+    }
+
+    body {
+        max-width: 800px;
+        margin: 2rem auto;
+    }
+
+    h1 {
+        text-align: center;
+        margin: 2rem auto;
+    }
+
+</style>
+
+
+<body>
+    <div id="charts">
+        <h1>TMPBF</h1>
+        <svg id="tmpbf"></svg>
+        <h1>UTBADE</h1>
+        <svg id="utbade"></svg>
+        <h1>UTCAPP</h1>
+        <svg id="utcapp"></svg>
+        <h1>UTMARK</h1>
+        <svg id="utmark"></svg>
+        <h1>UTSTRT</h1>
+        <svg id="utstrt"></svg>
+        <h1>UTTOP</h1>
+        <svg id="uttop"></svg>
+    </div>
+
+    <div>
+        <h1>Interactive</h1>
+        <label>Year</label>
+        <input type="range" name="time" min="1" max="4" step="1" onchange="makeOtherChart()" value="2">
+        <label>Risk</label>
+        <input type="range" name="risk" min="1" max="3" step="1" onchange="makeOtherChart()" value="2">
+        <svg id="interactive"></svg>
+    </div>
+    <script src="vendor/d3.v3.min.js"></script>
+    <script src="vendor/nv.d3.min.js"></script>
+    <link rel="stylesheet" href="vendor/nv.d3.css">
+
+    <script>
+        function makeChart(code, data) {
+
+            var series = [
+                {
+                    values: data.map(function (d, i) { return { y: d['FundReturn'], x: Date.parse(d['PerformanceDate']) } }),
+                    key: "Fund",
+                    color: "#26327a"
+                },
+                {
+                    values: data.map(function (d, i) { return { y: d['BenchMarkReturn'], x: Date.parse(d['PerformanceDate']) } }),
+                    key: "Benchmark",
+                    color: "#66c2ad"
+                },
+            ];
+            nv.addGraph(function () {
+                var chart = nv.models.lineChart()
+                    .margin({ left: 100 })  //Adjust chart margins to give the x-axis some breathing room.
+                    .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
+                    .showLegend(true)       //Show the legend, allowing users to turn on/off line series.
+                    .showYAxis(true)        //Show the y-axis
+                    .showXAxis(true)        //Show the x-axis
+
+
+                chart.yAxis.tickFormat(function (d) {
+                    return 'R' + d3.format(',.2f')(d)
+                })
+
+                chart.xAxis.tickFormat(function (d) {
+                    return d3.time.format('%Y-%m')(new Date(d))
+                });
+
+                d3.select('#' + code)
+                    .datum(series)
+                    .call(chart);
+
+                nv.utils.windowResize(chart.update);
+
+                return chart;
+            });
+        }
+
+        function makeOtherChart() {
+            var time = parseInt(document.querySelector('[name="time"]').value)
+            var risk = parseInt(document.querySelector('[name="risk"]').value)
+            var code = risk === 1 ? 'utstrt' : risk === 2 ? 'utbade' : 'tmpbf'
+            var series
+            if (time === 1) series = 'SinceInception'
+            if (time === 2) series = 'TenYears'
+            if (time === 3) series = 'FiveYears'
+            if (time === 4) series = 'ThreeYears'
+
+            var data = fundDataset[code].FundPerformanceChartData[series].FundPerformanceSeries
+            makeChart("interactive", data)
+        }
+
+        var fundDataset = {}
+        var codes = ['tmpbf', 'utbade', 'utcapp', 'utmark', 'utstrt', 'uttop']
+        codes.forEach(function (c) {
+            d3.json('data/' + c + '.json', function (data) {
+                
+                var fundData = JSON.parse(data['Fund'])
+                fundDataset[c] = fundData
+                var chartData = fundData.FundPerformanceChartData.SinceInception.FundPerformanceSeries
+                makeChart(c, chartData)
+            })
+        });
+        
+        setTimeout(makeOtherChart, 5000)
+        
+    </script>
+  
+</body>
+
+</html>
