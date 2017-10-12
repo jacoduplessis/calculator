@@ -31,18 +31,30 @@
 
 <body>
     <div id="charts">
-        <h1>TMPBF</h1>
-        <svg id="tmpbf"></svg>
-        <h1>UTBADE</h1>
-        <svg id="utbade"></svg>
-        <h1>UTCAPP</h1>
-        <svg id="utcapp"></svg>
-        <h1>UTMARK</h1>
-        <svg id="utmark"></svg>
-        <h1>UTSTRT</h1>
-        <svg id="utstrt"></svg>
-        <h1>UTTOP</h1>
-        <svg id="uttop"></svg>
+        <div>
+            <h1>TMPBF</h1>
+            <svg id="tmpbf"></svg>
+        </div>
+        <div>
+            <h1>UTBADE</h1>
+            <svg id="utbade"></svg>
+        </div>
+        <div>
+            <h1>UTCAPP</h1>
+            <svg id="utcapp"></svg>
+        </div>
+        <div>
+            <h1>UTMARK</h1>
+            <svg id="utmark"></svg>
+        </div>
+        <div>
+            <h1>UTSTRT</h1>
+            <svg id="utstrt"></svg>
+        </div>
+        <div>
+            <h1>UTTOP</h1>
+            <svg id="uttop"></svg>
+        </div>
     </div>
 
     <div>
@@ -109,26 +121,24 @@
             if (time === 3) series = 'FiveYears'
             if (time === 4) series = 'ThreeYears'
 
-            var data = fundDataset[code].FundPerformanceChartData[series].FundPerformanceSeries
+            var data = fundData[code].FundPerformanceChartData[series].FundPerformanceSeries
             makeChart("interactive", data)
         }
 
-        var fundDataset = {}
+        var fundData = {}
         var codes = ['tmpbf', 'utbade', 'utcapp', 'utmark', 'utstrt', 'uttop']
         codes.forEach(function (c) {
             d3.json('data/' + c + '.json', function (data) {
-                
-                var fundData = JSON.parse(data['Fund'])
-                fundDataset[c] = fundData
-                var chartData = fundData.FundPerformanceChartData.SinceInception.FundPerformanceSeries
+
+                fundData[c] = data
+                var chartData = data.FundPerformanceChartData.SinceInception.FundPerformanceSeries
                 makeChart(c, chartData)
             })
         });
-        
+
         setTimeout(makeOtherChart, 5000)
-        
     </script>
-  
+
 </body>
 
 </html>
